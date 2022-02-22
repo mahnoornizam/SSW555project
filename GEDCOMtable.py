@@ -4,14 +4,10 @@ from click import secho
 from prettytable import PrettyTable
 
 
-raw_file = input("PLease enter file name: ")
+raw_file = input("Please enter file name: ") #enter name of the file
 
-#f = open(raw_file, mode='r')
-#f = f.read()
-#print(f)
-
-class individual:
-    ID = ""
+class individual: #create class to identify all individuals
+    ID = "" #each individual has these traits that will be added to table
     name = ""
     sex = ""
     birthDate = ""
@@ -27,7 +23,7 @@ class individual:
         self.sex = sex
         self.birthDate = birthDate
         self.deathDate = deathDate
-#        self.age = age
+#        self.age = age #age incomplete
     
     def printIndividual(self):
         print("")
@@ -47,7 +43,7 @@ class individual:
     def getDeathDate(self):
         return self.deathDate
 
-"""
+""" #incomplete function for determining the age
     def age(self, birthDate):
         birthDate = birthDate
         deathDate = deathDate
@@ -57,13 +53,16 @@ class individual:
         return self.age
 """
 
-def findIndividual(content):
-    individuals = []
+#class ends
+#below are functions for finding individual traits
+
+def findIndividual(content): 
+    individuals = [] #all individuals
     for i in range(0, len(content)):
         if ("INDI" in content[i]):
             start = i
             i += 1
-            individual = []
+            individual = [] #each individual that will be added to list of all individuals
             while (content[i][0] != "0"):
                 individual.append(content[i])
                 i += 1
@@ -71,7 +70,7 @@ def findIndividual(content):
             i = start
     return individuals
 
-def getIndividualName(individual):
+def getIndividualName(individual): #returns individuals name
     name = ""
     for line in individual:
         if ("NAME" in line):
@@ -84,14 +83,14 @@ def getIndividualName(individual):
         name = "".join(nameList)
     return name
 
-def getIndividualSex(individual):
+def getIndividualSex(individual): #returns individuals sex
     sex = ""
     for i in range(0, len(individual)):
         if "SEX" in individual[i]:
             sex = individual[i][6]
     return sex
 
-def getIndividualBirthDate(individual):
+def getIndividualBirthDate(individual): #returns individuals birthDate
     birthDate = ""
     for i in range(0, len(individual)):
         if "BIRT" in individual[i]:
@@ -99,7 +98,7 @@ def getIndividualBirthDate(individual):
             birthDate = individual[i][7:individual[i].index("\n")]
     return birthDate
 
-def getIndividualDeathDate(individual):
+def getIndividualDeathDate(individual): #returns individuals deathDate
     deathDate = ""
     for i in range(0, len(individual)):
         if "DEAT" in individual[i]:
@@ -108,12 +107,39 @@ def getIndividualDeathDate(individual):
     # i tried adding else: "alive" but it just makes all of them = alive.. 
     return deathDate
 
+#individual trait functions end here
+#below are for family functions
 
+def searchByID(ID, individualsWithData):
+    for individual in individualsWithData:
+        if individual.getID() == ID:
+            return individual
+        
+def makeFamilies(families, individualsWithData):
+    for i in range(0, len(families)):
+        for x in range(0, families[i]):
+            father = None
+            mother = None
 
+            if "CHIL" in families[i][x]:
+                childID = families[i][x][7:families[i][x].index("\n")]
+                child = searchByID(childID, individualsWithData)
+                for y in range(0, len(families[i])):
+                    if "HUSB" in families[i][y]:
+                        fatherID = families[i][y][7:families[i][x].index("\n")]
+                        father = searchByID(fatherID, individualsWithData)
+                        child.setFather(father)
+                    if "HUSB" in families[i][y]:
+                        motherID = families[i][y][7:families[i][x].index("\n")]
+                        mother = searchByID(motherID, individualsWithData)
+                        child.setMother(mother)
+#main function below
+#main function opens file, gets individuals data
+#creates table and adds elements by column
 
-def main():
+                        
+def main(): #main
     fileContent = []
-    #raw_file = "C:\Users\Leo\Downloads\LeoPapadopoulosGEDCOM (1).ged "#input("PLease enter file name: ")
     f = open(raw_file, mode='r')
     with f as gedcomFile:
         line = gedcomFile.readline()
